@@ -1,0 +1,159 @@
+================================================================================
+  ASL ALPHABET RECOGNITION — MOBILE APP CONVERSION GUIDE
+================================================================================
+  Written for an AI agent tasked with converting this project to a mobile app.
+  Date: May 2026
+================================================================================
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  WHAT THIS PROJECT DOES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Real-time ASL (American Sign Language) alphabet recognition using the device
+camera. The user places their hand inside a square box shown on screen, and the
+app predicts which ASL letter they are signing.
+
+Recognizes 24 static letters: A B C D E F G H I K L M N O P Q R S T U V W X Y
+(J and Z are excluded — they require hand motion, not static poses)
+
+Accuracy: 98.5% on the Sign Language MNIST validation set.
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  FILES
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  mobile_export/
+  ├── PROJECT_OVERVIEW.txt          ← This file
+  ├── webcam_asl_cnn.py             ← Desktop reference implementation (Python)
+  └── asl_cnn.pt                    ← Trained PyTorch model weights (1.7 MB)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  HOW IT WORKS (step by step)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  1. Open the camera feed
+  2. Draw a fixed 200x200 pixel square box in the CENTER of the screen
+  3. User places their hand inside the box
+  4. Every frame:
+       a. Crop the 200x200 ROI from the center of the frame
+       b. Convert to GRAYSCALE
+       c. Resize to 28x28 pixels (area interpolation)
+       d. Normalize: divide all pixel values by 255.0  →  range [0.0, 1.0]
+       e. Feed into the CNN as shape (1, 1, 28, 28)
+       f. Apply softmax to get probabilities over 24 classes
+       g. Take the argmax as the predicted letter
+  5. Apply majority voting over the last 10 frames to smooth the output
+  6. Display the predicted letter and confidence score on screen
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  MODEL ARCHITECTURE (ASL_CNN)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Input shape:  (1, 1, 28, 28)   — batch=1, grayscale, 28x28 pixels
+  Output shape: (1, 24)          — 24 class logits
+
+  Block 1:
+    Conv2d(in=1,  out=32, kernel=3, padding=1) → BatchNorm2d(32) → ReLU
+    Conv2d(in=32, out=32, kernel=3, padding=1) → BatchNorm2d(32) → ReLU
+    MaxPool2d(2) → Dropout2d(0.25)
+    Output size: (32, 14, 14)
+
+  Block 2:
+    Conv2d(in=32, out=64, kernel=3, padding=1) → BatchNorm2d(64) → ReLU
+    Conv2d(in=64, out=64, kernel=3, padding=1) → BatchNorm2d(64) → ReLU
+    MaxPool2d(2) → Dropout2d(0.25)
+    Output size: (64, 7, 7)
+
+  Block 3:
+    Conv2d(in=64, out=128, kernel=3, padding=1) → BatchNorm2d(128) → ReLU
+    MaxPool2d(2) → Dropout2d(0.25)
+    Output size: (128, 3, 3)
+
+  Classifier:
+    Flatten → (1152,)
+    Linear(1152 → 256) → ReLU → Dropout(0.5)
+    Linear(256 → 24)
+
+  Total parameters: ~1.1 million
+  Model file size:  1.7 MB
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  OUTPUT CLASSES (index → letter)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  0=A  1=B  2=C  3=D  4=E  5=F  6=G  7=H  8=I  9=K
+  10=L 11=M 12=N 13=O 14=P 15=Q 16=R 17=S 18=T 19=U
+  20=V 21=W 22=X 23=Y
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  TRAINING DETAILS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Dataset:    Sign Language MNIST (27,455 images, 28x28 grayscale)
+  Classes:    24 static ASL letters
+  Accuracy:   98.5% validation accuracy
+  Optimizer:  Adam (lr=1e-3, weight_decay=1e-4)
+  Augmentation: horizontal flip (doubles dataset size to ~55k samples)
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  CONVERTING THE MODEL FOR MOBILE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  Export to ONNX (works with ONNX Runtime Mobile on Android/iOS):
+
+    import torch
+    # (paste ASL_CNN class from webcam_asl_cnn.py)
+
+    ckpt = torch.load("asl_cnn.pt", map_location="cpu", weights_only=False)
+    model = ASL_CNN()
+    model.load_state_dict(ckpt["model_state"])
+    model.eval()
+
+    dummy = torch.randn(1, 1, 28, 28)
+    torch.onnx.export(
+        model, dummy, "asl_cnn.onnx",
+        input_names=["input"],
+        output_names=["output"],
+        dynamic_axes={"input": {0: "batch"}, "output": {0: "batch"}},
+        opset_version=11
+    )
+
+  Export to TFLite (works with TensorFlow Lite on Android/iOS):
+
+    # After exporting to ONNX, use onnx-tf to convert to TFLite
+    # pip install onnx-tf tensorflow
+    # onnx-tf convert -i asl_cnn.onnx -o asl_cnn_tf
+    # Then use TFLiteConverter on the saved model
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  MOBILE UI REQUIREMENTS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  - Camera preview (full screen, front camera preferred)
+  - A square box overlay in the center of the screen (the ROI)
+    → Box turns GREEN when confidence > 70%, ORANGE otherwise
+  - Large predicted letter displayed prominently (top right or below box)
+  - Confidence percentage shown next to the letter
+  - Top-3 predictions shown as a small panel (optional but helpful)
+  - No MediaPipe required — just raw camera frames
+  - No internet connection required — fully offline
+
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  SUGGESTED MOBILE TECH STACKS
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+  React Native:   react-native-camera + ONNX Runtime React Native
+  Flutter:        camera plugin + tflite_flutter
+  Android native: CameraX + ONNX Runtime Android
+  iOS native:     AVFoundation + Core ML (convert with coremltools) or ONNX Runtime iOS
+
+================================================================================
