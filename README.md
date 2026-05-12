@@ -224,7 +224,7 @@ HomePage  (animated orb + voice button)
 
 ## Setup
 
-**Requirements:** Python 3.9+, Flutter 3.x, phone and PC on the same WiFi.
+**Requirements:** Python , Flutter , phone and PC on the same WiFi.
 
 ### 1. Free API keys (no credit card)
 
