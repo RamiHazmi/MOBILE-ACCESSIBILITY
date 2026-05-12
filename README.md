@@ -206,17 +206,17 @@ HomePage  (animated orb + voice button)
 
 **$0/month.** Every component is free.
 
-| Component | Provider | Free Tier |
+| Component | Provider | 
 |---|---|---|
-| Speech-to-text | faster-whisper (local) | Unlimited |
-| Intent LLM | OpenRouter — Llama-3.3-70b `:free` | Free, no card |
-| Vision (primary) | Gemini 2.5 Flash-Lite | 1,000 req/day |
-| Vision (fallback) | Gemini 2.5 Flash → Pro → OpenRouter VLMs | 250 + 100 + ~50/day each |
-| Sentence building | Groq — Llama-3.3-70b | Free tier |
-| Geocoding / POI / routing | Nominatim · Overpass · OSRM | Unlimited (fair use) |
-| Map tiles | OpenStreetMap | Free, open data |
-| All vision/sign/lip models | YOLO · SigLIP · CTR-GCN · Chaplin · Keras FER (local CPU) | Unlimited |
-| Personal memory | SQLite local file | Unlimited |
+| Speech-to-text | faster-whisper (local) | 
+| Intent LLM | OpenRouter — Llama-3.3-70b `:free` |
+| Vision (primary) | Gemini 2.5 Flash-Lite | 1
+| Vision (fallback) | Gemini 2.5 Flash → Pro → OpenRouter VLMs | 
+| Sentence building | Groq — Llama-3.3-70b |
+| Geocoding / POI / routing | Nominatim · Overpass · OSRM | 
+| Map tiles | OpenStreetMap | 
+| All vision/sign/lip models | YOLO · SigLIP · CTR-GCN · Chaplin · Keras FER (local CPU) | 
+| Personal memory | SQLite local file | 
 
 At a 4 s scan interval, Gemini Flash-Lite's 1,000 req/day covers ~67 minutes of continuous camera-on time before fallbacks kick in.
 
@@ -312,15 +312,10 @@ wexist/
 ## Roadmap
 
 - [ ] iOS support (Android-first currently)
-- [ ] Fully offline mode (local VLM)
-- [ ] Expanded ASL word vocabulary
-- [ ] Wearable companion (Pi-based glasses)
+  
 
 ---
 
-## License
-
-MIT — see [LICENSE](LICENSE).
 
 ---
 
