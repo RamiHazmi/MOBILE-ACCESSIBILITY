@@ -202,20 +202,24 @@ HomePage  (animated orb + voice button)
 
 ---
 
-## Cost & free tier
+## Cost & Free Tier
 
 **$0/month.** Every component is free.
 
-Component	Provider
-Speech-to-text	faster-whisper (local)
-Intent LLM	OpenRouter — Llama-3.3-70B:free
-Vision (primary)	Gemini 2.5 Flash-Lite
-Vision (fallback)	Gemini 2.5 Flash → Pro → OpenRouter VLMs
-Sentence building	Groq — Llama-3.3-70B
-Geocoding / POI / routing	Nominatim · Overpass · OSRM
-Map tiles	OpenStreetMap
-Vision / sign / lip models	YOLO · SigLIP · CTR-GCN · Chaplin · Keras FER (local CPU)
-Personal memory	SQLite local database
+| Component | Provider |
+|---|---|
+| Speech-to-text | faster-whisper (local) |
+| Intent LLM | OpenRouter — Llama-3.3-70B:free |
+| Vision (primary) | Gemini 2.5 Flash-Lite |
+| Vision (fallback) | Gemini 2.5 Flash → Pro → OpenRouter VLMs |
+| Sentence building | Groq — Llama-3.3-70B |
+| Geocoding / POI / routing | Nominatim · Overpass · OSRM |
+| Map tiles | OpenStreetMap |
+| Vision / sign / lip models | YOLO · SigLIP · CTR-GCN · Chaplin · Keras FER (local CPU) |
+| Personal memory | SQLite local database |
+
+At a **4-second scan interval**, Gemini Flash-Lite’s **1,000 requests/day** allowance provides roughly **67 minutes of continuous camera-on usage** before automatic fallback models are used.
+
 ---
 
 ## Setup
