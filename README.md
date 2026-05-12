@@ -218,7 +218,7 @@ HomePage  (animated orb + voice button)
 | Vision / sign / lip models | YOLO · SigLIP · CTR-GCN · Chaplin · Keras FER (local CPU) |
 | Personal memory | SQLite local database |
 
-At a **4-second scan interval**, Gemini Flash-Lite’s **1,000 requests/day** allowance provides roughly **67 minutes of continuous camera-on usage** before automatic fallback models are used.
+
 
 ---
 
